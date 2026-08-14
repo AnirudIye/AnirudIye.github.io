@@ -66,7 +66,13 @@
   /* Thresholds read 'container target', container side first. Getting the
      order backwards inverts the window and the animation silently never
      runs, so these are kept monotonic: enter always resolves above leave.
-     Pass debug: true to any onScroll below to draw the rulers. */
+     Pass debug: true to any scroll() below to draw the rulers.
+
+     No observer passes an explicit target. In 4.5.0 doing so makes
+     refresh() throw on a null internal reference, whether the target is a
+     selector or a resolved element; omitting it is the only form that
+     survives a refresh. It also happens to be the right scope here, since
+     each observer then measures the very elements it animates. */
 
   /* Section headings: characters rise out of a clip mask.
 
@@ -83,7 +89,6 @@
         ease: 'out(2)',
         delay: stagger(38),
         autoplay: scroll({
-          target: el,
           enter: 'bottom top',
           leave: 'center top',
           sync: 0.4
@@ -107,7 +112,6 @@
       ease: 'linear',
       delay: stagger(90, { grid: [list.length, 1], from: 'first', axis: 'x' }),
       autoplay: scroll({
-        target: '.projects',
         enter: 'bottom top',
         leave: 'center center',
         sync: true
@@ -129,7 +133,6 @@
       ease: 'out(2)',
       delay: stagger(26),
       autoplay: scroll({
-        target: el,
         enter: 'bottom top',
         leave: 'center top',
         sync: 0.3
@@ -151,7 +154,6 @@
       draw: ['0 0', '0 1'],
       ease: 'linear',
       autoplay: scroll({
-        target: '.contact',
         enter: 'bottom top',
         leave: 'center center',
         sync: true

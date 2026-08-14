@@ -711,6 +711,74 @@ h3 {
   color: rgba(236, 227, 210, .35);
 }
 
+/* Interactions
+   ------------
+   Set up in interactions.js, animated here. See the header of that file for
+   why none of this scales, lifts, or glows on hover. */
+
+/* Caret sweep. A block cursor runs the label, inverting each character for
+   roughly 90ms as it passes and leaving the text as it found it. Only tiles
+   cleanly because these labels are monospace. */
+[data-sweep] { white-space: pre; }
+
+.swept-char {
+  display: inline-block;
+  white-space: pre;
+}
+
+@keyframes caret-pass {
+  0%        { background-color: transparent; color: inherit; }
+  /* Snaps on rather than fading. A caret does not fade in. */
+  1%, 20%   { background-color: var(--red); color: var(--bg); }
+  55%, 100% { background-color: transparent; color: inherit; }
+}
+
+a:hover .swept-char,
+button:hover .swept-char {
+  animation: caret-pass 430ms linear;
+  animation-delay: calc(var(--i) * 26ms);
+}
+
+/* Border trace. Grows out of bottom-left as an underline, turns the corner,
+   closes the frame. pathLength=1 on the path makes the offset a plain 0 to 1. */
+[data-trace] { position: relative; }
+
+.trace {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.trace path {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 560ms cubic-bezier(.65, 0, .35, 1);
+}
+
+[data-trace]:hover .trace path,
+[data-trace]:focus-visible .trace path { stroke-dashoffset: 0; }
+
+/* On leave it keeps travelling forward instead of rewinding, so the frame
+   completes and clears rather than retracing its own path backwards. */
+[data-trace] .trace path { transition-timing-function: cubic-bezier(.4, 0, 1, 1); }
+[data-trace]:hover .trace path { transition-timing-function: cubic-bezier(.65, 0, .35, 1); }
+
+/* Glyph burst particles, positioned from the pointer in interactions.js. */
+.tick {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  font: 400 11px/1 var(--mono);
+  color: var(--red);
+  will-change: transform, opacity;
+}
+
 /* Mobile, matching the 390px treatment */
 
 @media (max-width: 860px) {
@@ -788,5 +856,9 @@ h3 {
   .marquee-track { animation: none; }
   .caret, .pulse { animation: none; }
   .term-reveal { animation: none; }
+  /* interactions.js already skips the split and the injected frame under
+     reduce, so nothing should match these. Kept as a backstop. */
+  .swept-char { animation: none !important; }
+  .trace path { transition: none !important; stroke-dashoffset: 0; }
   * { transition-duration: .01ms !important; }
 }
