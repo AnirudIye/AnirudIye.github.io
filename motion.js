@@ -43,6 +43,26 @@
     return Array.prototype.slice.call(document.querySelectorAll(selector));
   }
 
+  /* A ScrollObserver resolves its enter and leave thresholds to pixel
+     positions when it is constructed. That happens here before the webfonts
+     have landed, and Inter swapping in moves every heading and paragraph on
+     the page, so the thresholds end up describing a layout that no longer
+     exists. Keeping the handles lets us recompute them once the real fonts
+     are in and again whenever the viewport changes. */
+  var observers = [];
+
+  function scroll(options) {
+    var observer = onScroll(options);
+    observers.push(observer);
+    return observer;
+  }
+
+  function refreshAll() {
+    observers.forEach(function (observer) {
+      if (observer && observer.refresh) observer.refresh();
+    });
+  }
+
   /* Thresholds read 'container target', container side first. Getting the
      order backwards inverts the window and the animation silently never
      runs, so these are kept monotonic: enter always resolves above leave.
@@ -62,7 +82,7 @@
         y: ['110%', '0%'],
         ease: 'out(2)',
         delay: stagger(38),
-        autoplay: onScroll({
+        autoplay: scroll({
           target: el,
           enter: 'bottom top',
           leave: 'center top',
@@ -86,7 +106,7 @@
       clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)'],
       ease: 'linear',
       delay: stagger(90, { grid: [list.length, 1], from: 'first', axis: 'x' }),
-      autoplay: onScroll({
+      autoplay: scroll({
         target: '.projects',
         enter: 'bottom top',
         leave: 'center center',
@@ -108,7 +128,7 @@
       y: ['105%', '0%'],
       ease: 'out(2)',
       delay: stagger(26),
-      autoplay: onScroll({
+      autoplay: scroll({
         target: el,
         enter: 'bottom top',
         leave: 'center top',
@@ -130,7 +150,7 @@
     animate(svg.createDrawable(line), {
       draw: ['0 0', '0 1'],
       ease: 'linear',
-      autoplay: onScroll({
+      autoplay: scroll({
         target: '.contact',
         enter: 'bottom top',
         leave: 'center center',
@@ -143,4 +163,15 @@
   cards();
   closing();
   rule();
+
+  /* Recompute once the real fonts are in, and on resize. Debounced because
+     a drag-resize fires this continuously and each refresh re-measures
+     every observed element. */
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refreshAll);
+
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(refreshAll, 150);
+  });
 })();
