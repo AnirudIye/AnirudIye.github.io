@@ -1,4 +1,10 @@
-/* Animated backgrounds.
+/* The ambient field.
+
+   One effect, mounted three times at three strengths: behind the intro,
+   behind the work section, and faintly behind the contact section. It is
+   the page's single ambient signature, so it is placed by role rather than
+   painted behind everything, and the sections that carry dense reading are
+   left on clean ground.
 
    React Bits' Scanner is a WebGL2 fragment shader running through OGL, and
    47 of its 53 backgrounds are WebGL of one kind or another. Shipping a GL
@@ -25,7 +31,7 @@
    The palette maps the original violet to pink to white onto this site's
    trace cyan to signal amber to chalk.
 
-   Both backgrounds stop when off screen or backgrounded, which the original
+   Every mount stops when off screen or backgrounded, which the original
    also does and most of the library does not. */
 
 (function () {
@@ -70,25 +76,47 @@
     };
   }
 
-  /* Runs draw(seconds) on a frame loop, suspended while the host is off
-     screen or the tab is in the background. */
-  function loop(host, draw) {
-    var onscreen = true;
-    var start = null;
+  /* One loop for the whole page. Every mount registers its host and its
+     draw here, and a single frame chain walks the registry, so three fields
+     cost one loop rather than three and they all share a clock. A host that
+     is off screen and a tab that is in the background are skipped rather
+     than drawn, so a field costs nothing while nobody can see it.
 
-    if (window.IntersectionObserver) {
-      new IntersectionObserver(function (entries) {
-        onscreen = entries[0].isIntersecting;
-      }).observe(host);
+     One observer for all of them too: the registry entry is found by target,
+     which is what the single-callback version could not do. */
+  var mounts = [];
+  var running = false;
+  var start = null;
+  var watcher = null;
+
+  if (window.IntersectionObserver) {
+    watcher = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        for (var m = 0; m < mounts.length; m++) {
+          if (mounts[m].host === entries[i].target) {
+            mounts[m].onscreen = entries[i].isIntersecting;
+          }
+        }
+      }
+    });
+  }
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (document.hidden) return;
+    if (start === null) start = now;
+
+    var seconds = (now - start) / 1000;
+    for (var i = 0; i < mounts.length; i++) {
+      if (mounts[i].onscreen) mounts[i].draw(seconds);
     }
+  }
 
-    function frame(now) {
-      requestAnimationFrame(frame);
-      if (!onscreen || document.hidden) return;
-      if (start === null) start = now;
-      draw((now - start) / 1000);
-    }
-
+  function register(host, draw) {
+    mounts.push({ host: host, draw: draw, onscreen: true });
+    if (watcher) watcher.observe(host);
+    if (running) return;
+    running = true;
     requestAnimationFrame(frame);
   }
 
@@ -120,15 +148,19 @@
     ) * 0.35;
   }
 
-  function scanner(host) {
+  function scanner(host, phase) {
     var surface = makeCanvas(host, 'bg-scanner');
     var ctx = surface.ctx;
     var p = SCANNER;
+    /* A constant time offset for this mount, so the fields down the page do
+       not run their sweep envelopes in unison. Held under a second name
+       because draw() has a local phase of its own. */
+    var lead = phase || 0;
 
     function draw(seconds) {
       var w = surface.width();
       var h = surface.height();
-      var t = seconds * p.speed;
+      var t = (seconds + lead) * p.speed;
 
       ctx.clearRect(0, 0, w, h);
       /* Additive, standing in for the shader's premultiplied output: dark
@@ -184,79 +216,7 @@
     }
 
     if (reduced) { draw(0); return; }
-    loop(host, draw);
-  }
-
-  /* Letter glitch ------------------------------------------------------ */
-
-  var GLITCH = {
-    charWidth: 10,
-    charHeight: 20,
-    speed: 62,
-    turnover: 0.05,
-    palette: ['#142430', '#142430', '#e0a03c', '#52b6c4'],
-    chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>/[]{}=+*^?#_'
-  };
-
-  /* A grid of monospace characters re-rolling at random. Recoloured from
-     the original's greens to this page's own three, and weighted so most
-     cells sit at the sunken navy, leaving the accents to read as sparks
-     rather than confetti. */
-  function letterGlitch(host) {
-    var surface = makeCanvas(host, 'bg-glitch');
-    var ctx = surface.ctx;
-    var g = GLITCH;
-    var cells = [];
-    var cols = 0;
-    var rows = 0;
-    var last = -Infinity;
-
-    function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
-
-    function build() {
-      cols = Math.ceil(surface.width() / g.charWidth);
-      rows = Math.ceil(surface.height() / g.charHeight);
-      cells = new Array(cols * rows);
-      for (var i = 0; i < cells.length; i++) {
-        cells[i] = { ch: pick(g.chars), color: pick(g.palette) };
-      }
-    }
-
-    function paint() {
-      var w = surface.width();
-      var h = surface.height();
-      ctx.clearRect(0, 0, w, h);
-      ctx.font = '400 13px "IBM Plex Mono", ui-monospace, monospace';
-      ctx.textBaseline = 'top';
-
-      for (var i = 0; i < cells.length; i++) {
-        var cell = cells[i];
-        ctx.fillStyle = cell.color;
-        ctx.fillText(cell.ch, (i % cols) * g.charWidth, Math.floor(i / cols) * g.charHeight);
-      }
-    }
-
-    function draw(seconds) {
-      var ms = seconds * 1000;
-      if (!cells.length || cols !== Math.ceil(surface.width() / g.charWidth)) build();
-      /* Repainting the whole grid every frame is what makes the original
-         expensive. It only changes on the glitch tick, so it only repaints
-         on the glitch tick. */
-      if (ms - last < g.speed) return;
-      last = ms;
-
-      var churn = Math.max(1, Math.floor(cells.length * g.turnover));
-      for (var n = 0; n < churn; n++) {
-        var cell = cells[Math.floor(Math.random() * cells.length)];
-        cell.ch = pick(g.chars);
-        cell.color = pick(g.palette);
-      }
-      paint();
-    }
-
-    build();
-    if (reduced) { paint(); return; }
-    loop(host, draw);
+    register(host, draw);
   }
 
   /* The hero field has to run behind the nav, not start under it, so it
@@ -301,9 +261,15 @@
     return field;
   }
 
+  /* Mounted where the page wants a reader to look, at falling strength on
+     the way down. The offsets are arbitrary constants, only large enough
+     that no two sweeps land together. */
   var field = heroField();
-  if (field) scanner(field);
+  if (field) scanner(field, 0);
+
+  var work = document.querySelector('.work');
+  if (work) scanner(work, 37);
 
   var contact = document.querySelector('.contact');
-  if (contact) letterGlitch(contact);
+  if (contact) scanner(contact, 71);
 })();

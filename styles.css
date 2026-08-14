@@ -744,15 +744,35 @@ h3 {
   color: rgb(var(--ink-rgb) / .35);
 }
 
-/* Backgrounds
-   -----------
-   Canvases are inserted as the first child of their section by
-   backgrounds.js. Both sections get position:relative and lift their own
-   content above the canvas rather than the canvas being pushed behind the
-   whole page, so each one stays contained. */
+/* Ambient field
+   -------------
+   One effect, three intensities, placed by role rather than painted behind
+   everything. The intro and the work section carry the two things a reader
+   is meant to look at, so they get the field; the achievement rows and the
+   now block carry dense reading and stay on clean ground. Contact gets the
+   faintest pass, which closes the page on the same note it opened with.
 
-.contact { position: relative; }
-.contact > *:not(canvas) { position: relative; z-index: 1; }
+   Every host declares its own strength and nothing else. Strength is the
+   only thing that varies, which is what makes this one effect rather than
+   three.
+
+   There is deliberately no vignette. One used to be declared on ::before,
+   and it never painted: ::before, the canvas and ::after all sit at
+   z-index 0, so they paint in tree order, and ::before comes before the
+   canvas. It was fading to each host's own ground colour underneath an
+   almost-transparent canvas, so it did nothing at all. Raising it above the
+   canvas was tried and rejected: at its stops, transparent to ground by
+   35%, it erases most of the hero field, and those stops had never been
+   tuned against a layer that actually rendered. ::after is above the canvas
+   for the same tree-order reason, which is why the scanline does work.
+
+   Canvases are inserted as the first child of their host by backgrounds.js.
+   The host gets position:relative and lifts its own content above the
+   canvas rather than the canvas being pushed behind the whole page, so each
+   field stays contained. */
+
+.has-field { position: relative; }
+.has-field > *:not(canvas) { position: relative; z-index: 1; }
 
 /* The scanner covers the header as well as the intro, so the field starts
    at the very top of the page rather than under the nav. It cannot live
@@ -775,25 +795,19 @@ h3 {
   overflow: hidden;
 }
 
-.bg-scanner, .bg-glitch {
+.bg-scanner {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   display: block;
+  opacity: var(--field-strength, .5);
 }
 
-.bg-scanner { opacity: .5; }
-
-/* Quiet enough to read as texture. At full strength a character grid
-   behind a contact form is unreadable, which is the usual failure of this
-   effect. */
-.bg-glitch { opacity: .14; }
-
-/* Finishing passes done in CSS rather than canvas: free, pixel exact, and
-   they cost the animation loop nothing. */
-.hero-bg::after,
-.contact::after {
+/* Finishing pass done in CSS rather than canvas: free, pixel exact, and it
+   costs the animation loop nothing. */
+.has-field::after,
+.hero-bg::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -804,17 +818,12 @@ h3 {
     rgba(0, 0, 0, .16) 0 1px, transparent 1px 3.7px);
 }
 
-.hero-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  /* Vignette, so the lines fade out at the edges instead of being cut.
-     The centre sits a little above the middle now that the field also
-     covers the header, which keeps the brightest part on the terminal. */
-  background: radial-gradient(ellipse at 40% 52%, transparent 35%, var(--bg) 100%);
-}
+/* Strength falls on the way down the page: the hero states the effect, the
+   work section carries it quietly behind the two cards that matter, and
+   contact closes on the faintest pass of it. */
+.hero-bg { --field-strength: .5; }
+.work    { --field-strength: .28; }
+.contact { --field-strength: .18; }
 
 /* Text effects
    ------------
