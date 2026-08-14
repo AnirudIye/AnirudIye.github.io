@@ -711,6 +711,55 @@ h3 {
   color: rgba(236, 227, 210, .35);
 }
 
+/* Backgrounds
+   -----------
+   Canvases are inserted as the first child of their section by
+   backgrounds.js. Both sections get position:relative and lift their own
+   content above the canvas rather than the canvas being pushed behind the
+   whole page, so each one stays contained. */
+
+.intro, .contact { position: relative; }
+.intro > *:not(canvas), .contact > *:not(canvas) { position: relative; z-index: 1; }
+
+.bg-scanner, .bg-glitch {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+}
+
+.bg-scanner { opacity: .5; }
+
+/* Quiet enough to read as texture. At full strength a character grid
+   behind a contact form is unreadable, which is the usual failure of this
+   effect. */
+.bg-glitch { opacity: .14; }
+
+/* Finishing passes done in CSS rather than canvas: free, pixel exact, and
+   they cost the animation loop nothing. */
+.intro::after,
+.contact::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* CRT scanline at roughly the original's pitch. */
+  background: repeating-linear-gradient(to bottom,
+    rgba(0, 0, 0, .16) 0 1px, transparent 1px 3.7px);
+}
+
+.intro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Vignette, so the lines fade out at the edges instead of being cut. */
+  background: radial-gradient(ellipse at 40% 45%, transparent 35%, var(--bg) 100%);
+}
+
 /* Text effects
    ------------
    Built in text.js, animated here. See that file for the ports these come
