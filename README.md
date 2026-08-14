@@ -36,9 +36,12 @@ Every claim is checkable. If any of these stop being true, they need editing:
 - FootyBoard live at footyboard.me
 - BetterDresser live at betterdresser.vercel.app
 - Skills Ontario robotics, eighth place, 2024 and 2025
-- CSMC 2025, 42/60
+- Distinction in every CEMC contest written (Euclid, Fermat, Cayley)
+- CSMC 2025, 42/60 with distinction
 - OAPT 2025, 92nd percentile
-- Avogadro 2025, distinction, one of five in the school
+- Avogadro 2025, distinction, top five in the school
+- Standard First Aid and National Lifeguard certification
+- 300+ hours tutoring, 350+ hours robotics, 10+ hours of published YouTube content
 
 ## Writing rules
 
