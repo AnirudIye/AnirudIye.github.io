@@ -27,6 +27,10 @@
   --mono: 'JetBrains Mono', ui-monospace, monospace;
 
   --pad-x: 80px;
+  /* The canvas this was designed on was 1280 wide. Past that the layout
+     was stretching instead of centering, which is what made the
+     proportions read wrong on a large display. */
+  --maxw: 1280px;
   --ease: cubic-bezier(.22, .61, .36, 1);
 }
 
@@ -43,6 +47,20 @@ body {
 }
 
 a { color: var(--blue); }
+
+/* Full-bleed backgrounds, centred content. Sections that paint a
+   background stay edge to edge; their inner blocks get capped instead. */
+.site-head,
+.intro,
+.work,
+.marquee-head,
+.marquee-rows,
+.now,
+.contact-grid,
+.site-foot {
+  max-width: var(--maxw);
+  margin-inline: auto;
+}
 
 ::selection { background: rgba(227, 64, 47, .3); color: var(--cream); }
 
@@ -179,7 +197,7 @@ h3 {
   display: grid;
   grid-template-columns: 1.12fr .88fr;
   gap: 56px;
-  padding: 30px var(--pad-x) 26px;
+  padding: 44px var(--pad-x) 60px;
 }
 
 .terminal {
@@ -324,10 +342,12 @@ h3 {
   padding-left: 34px;
 }
 
+/* Square crop. A 497x176 letterbox is the wrong shape for a face. */
 .portrait {
   width: 100%;
-  height: 176px;
-  margin-bottom: 16px;
+  max-width: 220px;
+  aspect-ratio: 1 / 1;
+  margin-bottom: 18px;
   border: 1px dashed rgba(236, 227, 210, .18);
   border-radius: 8px;
   display: grid;
@@ -353,18 +373,26 @@ h3 {
 
 /* 02 Work */
 
-.work { padding: 60px var(--pad-x) 48px; }
+.work { padding: 64px var(--pad-x); }
 .work h2 { margin-bottom: 32px; }
 
 .projects {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  gap: 44px;
 }
 
+/* Capped so the whole card clears a laptop viewport. At 16/10 the
+   screenshot alone was 383px tall and pushed the description out of
+   sight, which is the first thing a recruiter needs to read. */
 .project .shot {
-  aspect-ratio: 16 / 10;
-  margin-bottom: 18px;
+  /* width:100% pins the box to the column so max-height clamps the
+     height rather than shrinking the width to satisfy the ratio.
+     The ratio then only governs at narrow widths. */
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 240px;
+  margin-bottom: 16px;
   border: 1px dashed rgba(236, 227, 210, .16);
   border-radius: 8px;
   display: grid;
@@ -492,7 +520,7 @@ h3 {
   display: grid;
   grid-template-columns: 1fr .68fr;
   gap: 48px;
-  padding: 60px var(--pad-x) 64px;
+  padding: 64px var(--pad-x);
 }
 
 .now-block { margin-bottom: 38px; }
