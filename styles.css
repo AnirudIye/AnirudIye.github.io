@@ -124,8 +124,8 @@ a { color: var(--trace); }
   align-items: center;
   gap: 10px;
 }
-.kicker-red { color: var(--amber); }
-.kicker-blue { color: var(--trace); }
+.kicker-amber { color: var(--amber); }
+.kicker-trace { color: var(--trace); }
 
 .bullet { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
@@ -251,7 +251,7 @@ h3 {
   border-radius: 50%;
   background: rgb(var(--ink-rgb) / .22);
 }
-.dot-red { background: var(--amber); }
+.dot-amber { background: var(--amber); }
 
 .term-path {
   font: 400 11px/1 var(--mono);
@@ -311,7 +311,7 @@ h3 {
   color: rgb(var(--ink-rgb) / .7);
   font: 400 10.5px/1 var(--mono);
 }
-.tag-red {
+.tag-amber {
   background: transparent;
   border: 1px solid rgb(var(--amber-rgb) / .55);
   color: var(--amber);
@@ -399,7 +399,7 @@ h3 {
 }
 .factlist > div:last-child { border-bottom: 0; }
 .factlist dt { color: var(--t-50); }
-.accent-blue { color: var(--trace); }
+.accent-trace { color: var(--trace); }
 
 /* 02 Work */
 
@@ -554,8 +554,8 @@ h3 {
   letter-spacing: .14em;
   color: rgb(var(--ink-rgb) / .55);
 }
-.ach-kicker.red { color: var(--amber); }
-.ach-kicker.blue { color: var(--trace); }
+.ach-kicker.amber { color: var(--amber); }
+.ach-kicker.trace { color: var(--trace); }
 
 /* Two lines to a card, kicker and result. The third line these used to
    carry held the contest name and the hours, which is the context that
@@ -931,7 +931,7 @@ button:hover .swept-char {
    closes the frame. pathLength=1 on the path makes the offset a plain 0 to 1. */
 [data-trace] { position: relative; }
 
-.trace {
+.trace-frame {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -940,7 +940,7 @@ button:hover .swept-char {
   pointer-events: none;
 }
 
-.trace path {
+.trace-frame path {
   fill: none;
   stroke: var(--amber);
   stroke-width: 1;
@@ -949,13 +949,13 @@ button:hover .swept-char {
   transition: stroke-dashoffset 560ms cubic-bezier(.65, 0, .35, 1);
 }
 
-[data-trace]:hover .trace path,
-[data-trace]:focus-visible .trace path { stroke-dashoffset: 0; }
+[data-trace]:hover .trace-frame path,
+[data-trace]:focus-visible .trace-frame path { stroke-dashoffset: 0; }
 
 /* On leave it keeps travelling forward instead of rewinding, so the frame
    completes and clears rather than retracing its own path backwards. */
-[data-trace] .trace path { transition-timing-function: cubic-bezier(.4, 0, 1, 1); }
-[data-trace]:hover .trace path { transition-timing-function: cubic-bezier(.65, 0, .35, 1); }
+[data-trace] .trace-frame path { transition-timing-function: cubic-bezier(.4, 0, 1, 1); }
+[data-trace]:hover .trace-frame path { transition-timing-function: cubic-bezier(.65, 0, .35, 1); }
 
 /* Glyph burst particles, positioned from the pointer in interactions.js. */
 .tick {
@@ -1050,6 +1050,6 @@ button:hover .swept-char {
   /* interactions.js already skips the split and the injected frame under
      reduce, so nothing should match these. Kept as a backstop. */
   .swept-char { animation: none !important; }
-  .trace path { transition: none !important; stroke-dashoffset: 0; }
+  .trace-frame path { transition: none !important; stroke-dashoffset: 0; }
   * { transition-duration: .01ms !important; }
 }

@@ -82,11 +82,11 @@
     if (reduced) return;
 
     all('[data-trace]').forEach(function (el) {
-      if (el.querySelector('.trace')) return;
+      if (el.querySelector('.trace-frame')) return;
 
       var ns = 'http://www.w3.org/2000/svg';
       var svg = document.createElementNS(ns, 'svg');
-      svg.setAttribute('class', 'trace');
+      svg.setAttribute('class', 'trace-frame');
       svg.setAttribute('viewBox', '0 0 100 40');
       svg.setAttribute('preserveAspectRatio', 'none');
       svg.setAttribute('aria-hidden', 'true');
