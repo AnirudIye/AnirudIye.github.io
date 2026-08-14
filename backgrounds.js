@@ -259,8 +259,50 @@
     loop(host, draw);
   }
 
-  var hero = document.querySelector('.intro');
-  if (hero) scanner(hero);
+  /* The hero field has to run behind the nav, not start under it, so it
+     cannot be hosted on .intro. The header is a sibling of main rather
+     than a child, so there is no single element wrapping both either.
+     Instead this is its own layer pinned to the top of the document and
+     sized down to the bottom of the intro.
+
+     Height is measured rather than guessed: the header is not a fixed
+     height across breakpoints, and the intro grows when the webfont lands
+     and when the rotating phrase changes the lede's line count. */
+  function heroField() {
+    var intro = document.querySelector('.intro');
+    var header = document.querySelector('.site-head');
+    if (!intro) return null;
+
+    var field = document.createElement('div');
+    field.className = 'hero-bg';
+    field.setAttribute('aria-hidden', 'true');
+    document.body.insertBefore(field, document.body.firstChild);
+
+    function size() {
+      /* Document-space bottom edge of the intro, so this stays correct
+         whatever the page is scrolled to when it recomputes. */
+      var bottom = intro.getBoundingClientRect().bottom + window.pageYOffset;
+      field.style.height = Math.round(bottom) + 'px';
+    }
+
+    size();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(size);
+
+    if (window.ResizeObserver) {
+      /* The header too: it does not resize often, but when it does the
+         intro moves down without its own box changing, and an observer on
+         the intro alone would never fire. */
+      var ro = new ResizeObserver(size);
+      ro.observe(intro);
+      if (header) ro.observe(header);
+    }
+    window.addEventListener('resize', size);
+
+    return field;
+  }
+
+  var field = heroField();
+  if (field) scanner(field);
 
   var contact = document.querySelector('.contact');
   if (contact) letterGlitch(contact);

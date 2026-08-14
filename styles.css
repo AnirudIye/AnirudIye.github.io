@@ -751,8 +751,29 @@ h3 {
    content above the canvas rather than the canvas being pushed behind the
    whole page, so each one stays contained. */
 
-.intro, .contact { position: relative; }
-.intro > *:not(canvas), .contact > *:not(canvas) { position: relative; z-index: 1; }
+.contact { position: relative; }
+.contact > *:not(canvas) { position: relative; z-index: 1; }
+
+/* The scanner covers the header as well as the intro, so the field starts
+   at the very top of the page rather than under the nav. It cannot live
+   inside .intro for that reason, and the header is a sibling of main
+   rather than a child, so no single element wraps both. The backdrop is
+   therefore its own layer, pinned to the top of the document and sized in
+   backgrounds.js down to the bottom of the intro.
+
+   z-index -1 puts it under ordinary page content without every header and
+   intro child having to declare a stacking position of its own. It still
+   paints above the body background, which is the root canvas and always
+   goes down first. */
+.hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
 
 .bg-scanner, .bg-glitch {
   position: absolute;
@@ -771,7 +792,7 @@ h3 {
 
 /* Finishing passes done in CSS rather than canvas: free, pixel exact, and
    they cost the animation loop nothing. */
-.intro::after,
+.hero-bg::after,
 .contact::after {
   content: '';
   position: absolute;
@@ -783,14 +804,16 @@ h3 {
     rgba(0, 0, 0, .16) 0 1px, transparent 1px 3.7px);
 }
 
-.intro::before {
+.hero-bg::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  /* Vignette, so the lines fade out at the edges instead of being cut. */
-  background: radial-gradient(ellipse at 40% 45%, transparent 35%, var(--bg) 100%);
+  /* Vignette, so the lines fade out at the edges instead of being cut.
+     The centre sits a little above the middle now that the field also
+     covers the header, which keeps the brightest part on the terminal. */
+  background: radial-gradient(ellipse at 40% 52%, transparent 35%, var(--bg) 100%);
 }
 
 /* Text effects
@@ -976,7 +999,6 @@ button:hover .swept-char {
     grid-template-columns: auto auto;
     justify-content: space-between;
     padding: 14px 20px;
-    border-bottom: 1px solid var(--line);
   }
   .head-spacer { display: none; }
 
