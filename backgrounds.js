@@ -16,14 +16,14 @@
      - the travelling sweep envelope, one pass roughly every eight seconds,
        which is what makes it read as a scan rather than a pattern
      - the chromatic split, each line stroked three times at small offsets
-       in blue, red and cream, so edges shimmer through the palette
+       in cyan, amber and chalk, so edges shimmer through the palette
 
    Dropped: the diffuse haze term and the pointer sharpening, both of which
    need per-pixel evaluation to look right and neither of which survives at
    the opacity this sits at.
 
    The palette maps the original violet to pink to white onto this site's
-   blue to red to cream.
+   trace cyan to signal amber to chalk.
 
    Both backgrounds stop when off screen or backgrounded, which the original
    also does and most of the library does not. */
@@ -105,7 +105,7 @@
     bandDensity: 11,
     colorSpread: 0.7,
     segments: 46,
-    channels: ['#5b8dd9', '#e3402f', '#ece3d2']
+    channels: ['#52b6c4', '#e0a03c', '#dbe4ea']
   };
 
   /* The shader's signalField, coefficients unchanged. Four sines drifting
@@ -194,14 +194,14 @@
     charHeight: 20,
     speed: 62,
     turnover: 0.05,
-    palette: ['#1a1a1f', '#1a1a1f', '#e3402f', '#5b8dd9'],
+    palette: ['#142430', '#142430', '#e0a03c', '#52b6c4'],
     chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>/[]{}=+*^?#_'
   };
 
   /* A grid of monospace characters re-rolling at random. Recoloured from
      the original's greens to this page's own three, and weighted so most
-     cells sit at the near-black so the accents read as sparks rather than
-     confetti. */
+     cells sit at the sunken navy, leaving the accents to read as sparks
+     rather than confetti. */
   function letterGlitch(host) {
     var surface = makeCanvas(host, 'bg-glitch');
     var ctx = surface.ctx;
@@ -226,7 +226,7 @@
       var w = surface.width();
       var h = surface.height();
       ctx.clearRect(0, 0, w, h);
-      ctx.font = '400 13px "JetBrains Mono", ui-monospace, monospace';
+      ctx.font = '400 13px "IBM Plex Mono", ui-monospace, monospace';
       ctx.textBaseline = 'top';
 
       for (var i = 0; i < cells.length; i++) {

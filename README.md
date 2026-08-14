@@ -23,6 +23,37 @@ Live at [anirudiye.github.io](https://anirudiye.github.io), served from `main`.
 Asset URLs carry a `?v=` query. Bump it in `index.html` whenever a CSS or JS
 file changes, or returning visitors sit on a stale copy for ten minutes.
 
+## Palette and type
+
+Drafting and instrumentation: a deep blueprint navy rather than black, cool
+chalk white for the line work, signal amber for emphasis, and a cyan that
+reads as a circuit trace for links. It is the vocabulary of what Anirud
+actually builds, which is robotics, circuits and board diagrams.
+
+| Token | Value | Role |
+|---|---|---|
+| `--bg` | `#081119` | blueprint ground |
+| `--ink` | `219 228 234` | chalk, all body text |
+| `--amber` | `224 160 60` | emphasis, kickers, the drawn outline |
+| `--trace` | `82 182 196` | links and the secondary accent |
+
+The three accents are declared as raw channels, so every translucent use is
+`rgb(var(--ink-rgb) / .42)` rather than a repeated triplet. Retuning the
+palette is three edits, not fifty.
+
+Type is **Archivo** over **IBM Plex Mono**.
+
+Both choices are deliberate moves away from where generated design
+converges. Near-black with a single vermilion accent is one of three
+documented default looks, and cream plus terracotta plus a mono face is the
+2026 signature; the previous palette sat on both. Inter is the single
+most-cited typographic tell and was the previous body face. Navy with amber
+sits on neither list, and amber against blue is complementary rather than
+analogous, so emphasis separates from the ground without extra saturation.
+
+Contrast on the new ground, measured: body text 14.75:1, amber 8.39:1, trace
+8.01:1. All three clear WCAG AAA.
+
 ## Motion
 
 Two rules, both deliberate.

@@ -5,7 +5,7 @@
    a background fade on an untouched token, and a gradient shine sweep. On
    GitHub, hover:scale-105 alone runs to millions of files. None of them are
    here, and the two that would look worst on this page are the lift and the
-   glow: a drop shadow needs a light source, and on a #0c0c0e ground there
+   glow: a drop shadow needs a light source, and on a #081119 ground there
    isn't one, so it renders as grey mud rather than elevation.
 
    The hover work is CSS. It is compositor-driven, it survives a busy main

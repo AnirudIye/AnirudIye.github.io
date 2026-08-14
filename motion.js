@@ -45,7 +45,7 @@
 
   /* A ScrollObserver resolves its enter and leave thresholds to pixel
      positions when it is constructed. That happens here before the webfonts
-     have landed, and Inter swapping in moves every heading and paragraph on
+     have landed, and Archivo swapping in moves every heading and paragraph on
      the page, so the thresholds end up describing a layout that no longer
      exists. Keeping the handles lets us recompute them once the real fonts
      are in and again whenever the viewport changes. */

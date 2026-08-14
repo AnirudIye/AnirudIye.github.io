@@ -91,8 +91,8 @@
     h1.appendChild(svg);
 
     /* The viewBox has to be measured, and measured against the real font.
-       Inter is materially wider than the fallback, so fitting this before
-       the webfont lands crops the last few letters. */
+       Archivo is materially narrower than the fallback, so fitting this
+       before the webfont lands leaves the box too wide. */
     function fit() {
       var box = outline.getBBox();
       if (!box.width) return false;
@@ -329,7 +329,7 @@
         }
 
         ctx.globalAlpha = Math.min(1, 0.35 + eased * 0.65);
-        ctx.fillStyle = p.seed > 0.82 ? '#e3402f' : '#ece3d2';
+        ctx.fillStyle = p.seed > 0.82 ? '#e0a03c' : '#dbe4ea';
         /* fillRect rather than arc: at two pixels the shape is
            indistinguishable and the cost is not. */
         ctx.fillRect(x, y, 2, 2);
