@@ -2,3 +2,8 @@ node_modules/
 .DS_Store
 _unpacked/
 .playwright-mcp/
+
+# Internal working notes. Deliberately untracked: this repo is public and
+# serves from root, so a committed handoff.md would be fetchable at
+# anirudiye.github.io/handoff.md.
+handoff.md
