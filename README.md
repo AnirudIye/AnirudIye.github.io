@@ -20,8 +20,6 @@ Everything below is marked in the HTML with `data-needs-url`, so
 
 | Marker | What it needs |
 |---|---|
-| `github` | GitHub profile URL. Three links point at github.com right now. The quick-link label also reads `clone github.com/anirud`, which needs the real handle. |
-| `linkedin` | LinkedIn profile URL. Two links. |
 | `resume` | A `resume.pdf` in this folder. Three links. |
 | `portrait` | A photo for the About panel. Replace the dashed box with an `<img>`. |
 | `shot-footyboard` | Screenshot of FootyBoard. |
