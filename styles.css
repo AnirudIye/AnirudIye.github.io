@@ -989,6 +989,63 @@ button:hover .swept-char {
 [data-trace] .trace-frame path { transition-timing-function: cubic-bezier(.4, 0, 1, 1); }
 [data-trace]:hover .trace-frame path { transition-timing-function: cubic-bezier(.65, 0, .35, 1); }
 
+/* Work section plot pass
+   ----------------------
+   The cards are never hidden. Everything here is drawn over content that is
+   already legible at first paint, which is the whole reason this replaced a
+   scrubbed clip wipe: at the top of the page that wipe had the first project
+   91% clipped away and the second one 100%, and it did not finish until the
+   reader had scrolled roughly 500px. The projects are the reason this page
+   exists.
+
+   Positioned by the card rather than measured in JS, so the marks stay on the
+   corners at any card size. */
+
+.project { position: relative; }
+
+.plot-mark {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.plot-mark path {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 1;
+}
+
+/* One path, rotated to each corner, so the bracket always opens inward. */
+.plot-mark-tl { top: -5px; left: -5px; }
+.plot-mark-tr { top: -5px; right: -5px; transform: rotate(90deg); }
+.plot-mark-br { bottom: -5px; right: -5px; transform: rotate(180deg); }
+.plot-mark-bl { bottom: -5px; left: -5px; transform: rotate(270deg); }
+
+/* The plotter head. A hairline with a short trail above it, so the direction
+   of travel is legible in a still frame. */
+.plot-scan {
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  top: 0;
+  height: 34px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  will-change: transform, opacity;
+  background:
+    linear-gradient(to bottom,
+      transparent 0%,
+      rgb(var(--trace-rgb) / .13) 82%,
+      transparent 82%),
+    linear-gradient(to bottom,
+      transparent calc(100% - 1px),
+      var(--amber) calc(100% - 1px));
+}
+
 /* Glyph burst particles, positioned from the pointer in interactions.js. */
 .tick {
   position: absolute;
@@ -1082,5 +1139,6 @@ button:hover .swept-char {
      reduce, so nothing should match these. Kept as a backstop. */
   .swept-char { animation: none !important; }
   .trace-frame path { transition: none !important; stroke-dashoffset: 0; }
+  .plot-mark, .plot-scan { display: none; }
   * { transition-duration: .01ms !important; }
 }
