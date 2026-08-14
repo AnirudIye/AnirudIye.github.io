@@ -81,7 +81,9 @@
      either in place or entirely behind the edge. sync 0.4 lets the letters
      lag the scroll slightly, which reads as weight rather than lag. */
   function headings() {
-    all('h2').forEach(function (el) {
+    /* The particled heading renders itself; giving it a mask wipe too
+       would be two treatments fighting over one element. */
+    all('h2:not([data-particles])').forEach(function (el) {
       var split = splitText(el, { chars: { wrap: 'clip' }, accessible: true });
 
       animate(split.chars, {

@@ -822,6 +822,27 @@ h3 {
 
 .stroke-name.is-drawn .sn-fill { clip-path: inset(0 0 0 0); }
 
+/* Particle heading. The real text keeps its box and its place in the
+   document; it is only made transparent, so the heading is still a heading
+   to a crawler and the layout below never depends on the canvas. */
+/* Set larger than the other section headings on purpose. Particles need
+   room: this effect is built for display type, and at the 32px the rest of
+   the h2s use there is roughly one particle per stem and the word stops
+   resolving. This is also the one heading with its own treatment, so the
+   extra size reads as intent rather than inconsistency. */
+.is-particled {
+  position: relative;
+  color: transparent;
+  font-size: 44px;
+  letter-spacing: -.025em;
+}
+
+.particle-text {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 /* Rotating phrase in the lede. */
 [data-rotate] {
   display: inline-flex;
@@ -953,6 +974,9 @@ button:hover .swept-char {
   .portrait { max-width: 180px; }
 
   h2 { font-size: 24px; }
+  /* A class beats the element selector above, so the particled heading
+     needs its own mobile size or it stays at its 44px desktop setting. */
+  .is-particled { font-size: 30px; }
   h3 { font-size: 20px; }
 
   .work { padding: 30px 20px; }

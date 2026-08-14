@@ -216,8 +216,154 @@
     }, 2600);
   }
 
+  /* Particle text.
+
+     React Bits builds this by drawing the string to an offscreen canvas,
+     reading it back with getImageData, and turning every pixel above an
+     alpha threshold into a particle target. That part is already
+     framework-free, so it ports directly.
+
+     The randomness is seeded rather than Math.random, exactly as the
+     original does it, so the same heading scatters the same way on every
+     load instead of shimmering differently each time. */
+  function particleText(el) {
+    if (!el || el.dataset.particled) return;
+    el.dataset.particled = '1';
+
+    var text = el.textContent.trim();
+    if (!text || reduced) return;
+
+    var style = window.getComputedStyle(el);
+    var font = style.fontWeight + ' ' + style.fontSize + ' ' + style.fontFamily;
+
+    var canvas = document.createElement('canvas');
+    canvas.className = 'particle-text';
+    canvas.setAttribute('aria-hidden', 'true');
+    var ctx = canvas.getContext('2d');
+
+    /* The real text stays in the DOM and keeps its box, so the heading is
+       still a heading to a crawler and a screen reader. It is only made
+       transparent, not removed, which also means the layout below does not
+       depend on the canvas at all. */
+    el.classList.add('is-particled');
+    el.appendChild(canvas);
+
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var particles = [];
+    var w = 0;
+    var h = 0;
+    var started = null;
+
+    function sample() {
+      var box = el.getBoundingClientRect();
+      w = Math.max(1, Math.round(box.width));
+      h = Math.max(1, Math.round(box.height));
+
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var off = document.createElement('canvas');
+      off.width = w;
+      off.height = h;
+      var octx = off.getContext('2d');
+      octx.font = font;
+      octx.textBaseline = 'middle';
+      octx.fillStyle = '#fff';
+      octx.fillText(text, 0, h / 2);
+
+      var data = octx.getImageData(0, 0, w, h).data;
+      /* Sampling stride. The original ships 4, which suits the display
+         sizes it is demoed at; at a section-heading size that lands about
+         one particle per stroke and the letterforms stop being readable.
+         2 is the coarsest stride that still resolves a stem. */
+      var step = 2;
+      var targets = [];
+      for (var y = 0; y < h; y += step) {
+        for (var x = 0; x < w; x += step) {
+          if (data[(y * w + x) * 4 + 3] > 40) targets.push({ x: x, y: y });
+        }
+      }
+
+      particles = targets.map(function (target, i) {
+        /* The original's seeded pseudo-random, kept verbatim so the
+           scatter is stable across reloads. */
+        var seed = ((i * 9301 + 49297) % 233280) / 233280;
+        var angle = seed * Math.PI * 2;
+        var radius = 60 + seed * 120;
+        return {
+          x: target.x + Math.cos(angle) * radius,
+          y: target.y + Math.sin(angle) * radius,
+          tx: target.x,
+          ty: target.y,
+          seed: seed,
+          delay: seed * 420
+        };
+      });
+    }
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function draw(now) {
+      if (started === null) started = now;
+      var elapsed = now - started;
+
+      ctx.clearRect(0, 0, w, h);
+
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        var local = Math.max(0, Math.min(1, (elapsed - p.delay) / 1600));
+        var eased = easeOutCubic(local);
+
+        var x = p.x + (p.tx - p.x) * eased;
+        var y = p.y + (p.ty - p.y) * eased;
+
+        /* Once gathered they breathe rather than freezing, which is what
+           stops it looking like a still image of a heading. */
+        if (local >= 1) {
+          var drift = elapsed / 1000;
+          x += Math.sin(drift * 0.9 + p.seed * 10) * 0.7;
+          y += Math.cos(drift * 0.7 + p.seed * 8) * 0.5;
+        }
+
+        ctx.globalAlpha = Math.min(1, 0.35 + eased * 0.65);
+        ctx.fillStyle = p.seed > 0.82 ? '#e3402f' : '#ece3d2';
+        /* fillRect rather than arc: at two pixels the shape is
+           indistinguishable and the cost is not. */
+        ctx.fillRect(x, y, 2, 2);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    sample();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sample);
+
+    var running = false;
+    function frame(now) {
+      requestAnimationFrame(frame);
+      if (!running || document.hidden) return;
+      draw(now);
+    }
+
+    /* Gathers when it first arrives, not on load, so the effect is seen. */
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function (entries) {
+        running = entries[0].isIntersecting;
+        if (running && started === null) started = performance.now();
+      }, { threshold: 0.25 }).observe(el);
+    } else {
+      running = true;
+    }
+
+    requestAnimationFrame(frame);
+  }
+
   whenRevealed(function () {
     strokeName();
     rotatingPhrase();
   });
+
+  particleText(document.querySelector('[data-particles]'));
 })();
