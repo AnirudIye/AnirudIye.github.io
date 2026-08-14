@@ -472,16 +472,36 @@ h3 {
 
 .marquee { overflow: hidden; }
 
+/* The wrap trick React Bits uses in TextLoop: it draws the text twice on
+   one path and holds the second copy exactly one path length behind the
+   first, so the seam always lands on identical pixels.
+
+   Here the track holds N identical sets of cards and travels exactly one
+   set width. The keyframe does reset, but at the moment it resets set 2
+   is sitting precisely where set 1 was, so the frame before and the frame
+   after are the same image. --shift is measured in script.js, because
+   guessing it in CSS is what produces a visible jump.
+
+   Compositor-driven, so it keeps running while the main thread is busy. */
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: drift var(--speed, 60s) linear infinite;
+  will-change: transform;
+  animation: drift-left var(--dur, 60s) linear infinite;
 }
+
+.marquee-track[data-dir="right"] { animation-name: drift-right; }
+
 .marquee:hover .marquee-track { animation-play-state: paused; }
 
-@keyframes drift {
-  from { transform: translateX(0) }
-  to   { transform: translateX(-50%) }
+@keyframes drift-left {
+  from { transform: translate3d(0, 0, 0) }
+  to   { transform: translate3d(calc(var(--shift) * -1), 0, 0) }
+}
+
+@keyframes drift-right {
+  from { transform: translate3d(calc(var(--shift) * -1), 0, 0) }
+  to   { transform: translate3d(0, 0, 0) }
 }
 
 .ach {
