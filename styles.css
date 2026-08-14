@@ -713,7 +713,8 @@ h3 {
   .status-end { margin-left: 0; }
 
   .intro-side { border-left: 0; padding-left: 0; }
-  .portrait { height: auto; aspect-ratio: 3 / 2; }
+  /* Stays square here too, just smaller. */
+  .portrait { max-width: 180px; }
 
   h2 { font-size: 24px; }
   h3 { font-size: 20px; }
