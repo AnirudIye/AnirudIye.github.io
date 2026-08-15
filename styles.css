@@ -746,15 +746,19 @@ h3 {
 
 /* Ambient field
    -------------
-   One effect, three intensities, placed by role rather than painted behind
-   everything. The intro and the work section carry the two things a reader
-   is meant to look at, so they get the field; the achievement rows and the
-   now block carry dense reading and stay on clean ground. Contact gets the
-   faintest pass, which closes the page on the same note it opened with.
+   One effect, two mounts, placed by role rather than painted behind
+   everything. The first runs unbroken from the top of the document to the
+   bottom of the work section, so the header, the intro and the two project
+   cards sit on one continuous piece of it. The achievement rows and the now
+   block carry dense reading and stay on clean ground. Contact closes on the
+   faintest pass of it.
 
-   Every host declares its own strength and nothing else. Strength is the
-   only thing that varies, which is what makes this one effect rather than
-   three.
+   Every field is edge to edge. That is why the top one is a document-level
+   layer rather than a canvas inside .work: .work is capped at --maxw and
+   centred, so a canvas hosted there stopped 80px short of both edges on a
+   wide screen while the header above it ran full bleed. .contact and
+   .marquee-section are already full bleed and cap their inner blocks
+   instead, which is the pattern at the top of this file.
 
    There is deliberately no vignette. One used to be declared on ::before,
    and it never painted: ::before, the canvas and ::after all sit at
@@ -774,17 +778,23 @@ h3 {
 .has-field { position: relative; }
 .has-field > *:not(canvas) { position: relative; z-index: 1; }
 
-/* The scanner covers the header as well as the intro, so the field starts
-   at the very top of the page rather than under the nav. It cannot live
-   inside .intro for that reason, and the header is a sibling of main
-   rather than a child, so no single element wraps both. The backdrop is
-   therefore its own layer, pinned to the top of the document and sized in
-   backgrounds.js down to the bottom of the intro.
+/* The top field starts at the very top of the page rather than under the
+   nav, and runs to the bottom of the work section. No single element wraps
+   that span: the header is a sibling of main rather than a child. So it is
+   its own layer, pinned to the document and sized in backgrounds.js.
 
-   z-index -1 puts it under ordinary page content without every header and
-   intro child having to declare a stacking position of its own. It still
-   paints above the body background, which is the root canvas and always
-   goes down first. */
+   z-index -1 puts it under ordinary page content without every header,
+   intro and work child having to declare a stacking position of its own.
+   It still paints above the body background, which is the root canvas and
+   always goes down first.
+
+   The mask is what lets one canvas read as two intensities. It holds full
+   strength down to --field-hold, the intro's bottom edge as a percentage of
+   the layer, then eases to 55% of it over the next fifth of the height. The
+   work section therefore sits at about .28 of the original, which is where
+   it was tuned when it had a canvas of its own, and the contour lines still
+   carry through the seam unbroken instead of restarting at it.
+   --field-hold is set from the measured layout in backgrounds.js. */
 .hero-bg {
   position: absolute;
   top: 0;
@@ -793,6 +803,14 @@ h3 {
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom,
+    #000 0,
+    #000 var(--field-hold, 100%),
+    rgba(0, 0, 0, .55) calc(var(--field-hold, 100%) + 20%));
+          mask-image: linear-gradient(to bottom,
+    #000 0,
+    #000 var(--field-hold, 100%),
+    rgba(0, 0, 0, .55) calc(var(--field-hold, 100%) + 20%));
 }
 
 .bg-scanner {
@@ -818,11 +836,9 @@ h3 {
     rgba(0, 0, 0, .16) 0 1px, transparent 1px 3.7px);
 }
 
-/* Strength falls on the way down the page: the hero states the effect, the
-   work section carries it quietly behind the two cards that matter, and
-   contact closes on the faintest pass of it. */
+/* The top field states the effect and the mask above quiets it over the
+   work section; contact closes on the faintest pass of it. */
 .hero-bg { --field-strength: .5; }
-.work    { --field-strength: .28; }
 .contact { --field-strength: .18; }
 
 /* Text effects

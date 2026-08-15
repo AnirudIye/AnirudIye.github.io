@@ -219,19 +219,30 @@
     register(host, draw);
   }
 
-  /* The hero field has to run behind the nav, not start under it, so it
-     cannot be hosted on .intro. The header is a sibling of main rather
-     than a child, so there is no single element wrapping both either.
-     Instead this is its own layer pinned to the top of the document and
-     sized down to the bottom of the intro.
+  /* The top field runs from the very top of the document down to the
+     bottom of the work section, so the header, the intro and the two
+     project cards all sit on one unbroken piece of it.
+
+     It cannot be hosted on any of them. The header is a sibling of main
+     rather than a child, so no single element wraps the header and the
+     intro; and .work is capped at --maxw and centred, so a canvas inside
+     it would stop 80px short of each edge on a wide screen while the
+     header above it ran full bleed. This layer is pinned to the document
+     instead, which is edge to edge by construction.
+
+     One canvas rather than two also means the contour lines carry through
+     the intro-to-work seam instead of restarting at it, which is the whole
+     reason it reads as one field.
 
      Height is measured rather than guessed: the header is not a fixed
      height across breakpoints, and the intro grows when the webfont lands
      and when the rotating phrase changes the lede's line count. */
-  function heroField() {
+  function topField() {
     var intro = document.querySelector('.intro');
+    var work = document.querySelector('.work');
     var header = document.querySelector('.site-head');
-    if (!intro) return null;
+    var last = work || intro;
+    if (!intro || !last) return null;
 
     var field = document.createElement('div');
     field.className = 'hero-bg';
@@ -239,20 +250,30 @@
     document.body.insertBefore(field, document.body.firstChild);
 
     function size() {
-      /* Document-space bottom edge of the intro, so this stays correct
-         whatever the page is scrolled to when it recomputes. */
-      var bottom = intro.getBoundingClientRect().bottom + window.pageYOffset;
+      /* Document-space bottom edges, so this stays correct whatever the
+         page is scrolled to when it recomputes. */
+      var scrolled = window.pageYOffset;
+      var bottom = last.getBoundingClientRect().bottom + scrolled;
+      var hold = intro.getBoundingClientRect().bottom + scrolled;
+
       field.style.height = Math.round(bottom) + 'px';
+      /* Where the field stops being the hero's and starts being the work
+         section's. The mask in the stylesheet holds full strength above
+         this and eases to a quieter one below it, so the two readings
+         differ without the canvas being cut in half. */
+      field.style.setProperty('--field-hold', (hold / bottom * 100).toFixed(2) + '%');
     }
 
     size();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(size);
 
     if (window.ResizeObserver) {
-      /* The header too: it does not resize often, but when it does the
-         intro moves down without its own box changing, and an observer on
-         the intro alone would never fire. */
+      /* The header and the intro too: neither resizes often, but when
+         either does everything below it moves without its own box
+         changing, and an observer on the last element alone would never
+         fire. */
       var ro = new ResizeObserver(size);
+      ro.observe(last);
       ro.observe(intro);
       if (header) ro.observe(header);
     }
@@ -261,14 +282,11 @@
     return field;
   }
 
-  /* Mounted where the page wants a reader to look, at falling strength on
-     the way down. The offsets are arbitrary constants, only large enough
-     that no two sweeps land together. */
-  var field = heroField();
+  /* Two mounts: everything above the achievement rows, and contact. The
+     phase offset is an arbitrary constant, only large enough that the two
+     sweeps never land together. */
+  var field = topField();
   if (field) scanner(field, 0);
-
-  var work = document.querySelector('.work');
-  if (work) scanner(work, 37);
 
   var contact = document.querySelector('.contact');
   if (contact) scanner(contact, 71);
