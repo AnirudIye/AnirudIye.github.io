@@ -370,17 +370,51 @@
      createDrawable is v4's replacement for the old setDashoffset dance; it
      animates stroke-dasharray from a 'start end' pair, both normalised 0 to 1.
      sync true because a rule that lags its own scroll looks broken, where
-     text that lags looks weighted. */
+     text that lags looks weighted.
+
+     The leave threshold is built by hand, and it has to be. The line sits
+     about 76px above the bottom of the document, so every leave written
+     against its own geometry lands past where the page can scroll: the old
+     'center center' resolved 374px beyond max scroll at 1440x900, which
+     froze the rule at 17% drawn forever and left the footer above five
+     sixths of a missing divider. Measured, not estimated. The obvious
+     spellings do not fix it either, all verified against this vendored
+     build: 'max' is the target's own max-visibility position, one pixel
+     past enter, which snaps instead of drawing; and a bare number is a
+     target-side offset, which inverts the window here and silently never
+     runs.
+
+     So the leave says: the viewport bottom, pulled up by the distance from
+     the line to the end of the document, reaches the line. That position is
+     the maximum scroll by construction, at any viewport, so the draw
+     completes exactly as the footer arrives, which is what the comment in
+     index.html always promised. It is a function so refresh() re-measures
+     the gap after the webfonts land and on resize, same as every threshold
+     in this file relies on. The window is short, roughly the footer's own
+     height of scroll, which suits a hairline; nothing longer is reachable
+     for an element this close to the document's end. */
   function rule() {
     var line = document.querySelector('.contact-rule line');
-    if (!line || !svg || !svg.createDrawable) return;
+    var rule_ = document.querySelector('.contact-rule');
+    if (!line || !rule_ || !svg || !svg.createDrawable) return;
 
     animate(svg.createDrawable(line), {
       draw: ['0 0', '0 1'],
       ease: 'linear',
       autoplay: scroll({
         enter: 'bottom top',
-        leave: 'center center',
+        leave: function () {
+          var doc = document.documentElement;
+          var top = rule_.getBoundingClientRect().top + window.pageYOffset;
+          /* -2 pulls the end of the window safely inside the reachable
+             range: a larger gap moves the leave point further down the
+             page, so the margin has to shrink it. Subpixel layout puts the
+             exact figure a fraction past max scroll, which reads as a rule
+             stuck at 98% at the very bottom; completing two pixels early
+             is invisible. */
+          var gap = Math.max(1, Math.round(doc.scrollHeight - top) - 2);
+          return 'bottom-=' + gap + ' top';
+        },
         sync: true
       })
     });
