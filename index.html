@@ -17,7 +17,7 @@
 <!-- ?v= is bumped whenever styles.css or script.js changes. GitHub Pages
      serves assets with a 10 minute cache and returning visitors otherwise
      sit on a stale stylesheet against fresh markup. -->
-<link rel="stylesheet" href="styles.css?v=18">
+<link rel="stylesheet" href="styles.css?v=19">
 </head>
 <body>
 
@@ -115,12 +115,16 @@
   <h2 data-plot>Shipped projects</h2>
 
   <div class="projects">
+    <!-- Name before screenshot, in both cards. The screenshot is 240px tall,
+         so leading with it pushed the project name that far down and put both
+         titles below the fold. It also meant the first thing in the card was
+         an unlabelled box. The name now captions the picture underneath it. -->
     <article class="project">
-      <div class="shot" data-needs-url="shot-footyboard"><span>FootyBoard screenshot</span></div>
       <div class="project-head">
         <h3>FootyBoard</h3>
         <a class="live" href="https://www.footyboard.me" target="_blank" rel="noopener">live <span aria-hidden="true">&#8599;</span></a>
       </div>
+      <div class="shot" data-needs-url="shot-footyboard"><span>FootyBoard screenshot</span></div>
       <p>A collaborative tactics board for soccer. Two people open the same link and work on one pitch, with cursors and token positions synchronised in real time.</p>
       <p>An assistant docked on the canvas reads the board state and edits it from plain language. Typing "set the away team in a mid-block 4-4-2" repositions the players.</p>
       <ul class="stack">
@@ -129,11 +133,11 @@
     </article>
 
     <article class="project">
-      <div class="shot" data-needs-url="shot-betterdresser"><span>BetterDresser screenshot</span></div>
       <div class="project-head">
         <h3>BetterDresser</h3>
         <a class="live" href="https://betterdresser.vercel.app" target="_blank" rel="noopener">live <span aria-hidden="true">&#8599;</span></a>
       </div>
+      <div class="shot" data-needs-url="shot-betterdresser"><span>BetterDresser screenshot</span></div>
       <p>A wardrobe application that catalogues clothing from photographs, then recommends outfits against the forecast, the day's calendar entries, and any dress code attached to them. A camera try-on renders a garment on the wearer before purchase.</p>
       <p>Every external service is optional. With no API keys configured the application still runs on deterministic fallbacks rather than failing, which is the part of it I am most pleased with.</p>
       <ul class="stack">
